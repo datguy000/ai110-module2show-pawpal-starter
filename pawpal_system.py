@@ -58,11 +58,11 @@ class Owner:
 
     def add_pet(self, pet: Pet) -> None:
         """Add a pet to this owner's list of pets."""
-        pass
+        self.pets.append(pet)
 
     def get_all_tasks(self) -> list[tuple[Pet, Task]]:
         """Return (pet, task) pairs for every task across all pets."""
-        pass
+        return [(pet, task) for pet in self.pets for task in pet.get_tasks()]
 
 
 class Scheduler:

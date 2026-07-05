@@ -1,4 +1,4 @@
-from pawpal_system import Pet, Task
+from pawpal_system import Owner, Pet, Task
 
 
 def make_task(**overrides):
@@ -40,3 +40,25 @@ def test_complete_task_marks_completed_and_does_not_duplicate_once_task():
     pet.complete_task(task)
     assert task.completed is True
     assert len(pet.get_tasks()) == 1
+
+
+def test_add_pet_increases_count():
+    owner = Owner(name="Andre")
+    owner.add_pet(Pet(name="Rex", species="dog"))
+    assert len(owner.pets) == 1
+
+
+def test_get_all_tasks_returns_pet_task_pairs_across_pets():
+    owner = Owner(name="Andre")
+    dog = Pet(name="Rex", species="dog")
+    cat = Pet(name="Milo", species="cat")
+    dog_task = make_task(title="Walk")
+    cat_task = make_task(title="Feed")
+    dog.add_task(dog_task)
+    cat.add_task(cat_task)
+    owner.add_pet(dog)
+    owner.add_pet(cat)
+
+    pairs = owner.get_all_tasks()
+
+    assert pairs == [(dog, dog_task), (cat, cat_task)]
