@@ -28,7 +28,7 @@ class Task:
 
     def __str__(self) -> str:
         """Return a readable one-line summary of this task."""
-        return f"{self.time} — {self.title} ({self.category}, {self.priority})"
+        return f"{self.time} - {self.title} ({self.category}, {self.priority})"
 
 
 @dataclass

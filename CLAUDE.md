@@ -81,7 +81,7 @@ current phase's checkpoint is confirmed complete by the human.
       Task and Pet. Commit as its own step.
 - [x] Phase 1, Step 5: Review skeleton against UML for gaps; report findings
       to human before making changes.
-- [ ] Phase 2: Full implementation of all 4 classes' logic. Then main.py
+- [x] Phase 2: Full implementation of all 4 classes' logic. Then main.py
       demo script (1 Owner, 2+ Pets, 3+ Tasks, printed "Today's Schedule").
       Then tests/test_pawpal.py with 2 basic tests (mark_complete, add_task
       increases count). Add 1-line docstrings to all methods.
