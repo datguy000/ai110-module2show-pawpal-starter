@@ -19,8 +19,12 @@ class Task:
     completed: bool = False
 
     def mark_complete(self) -> None:
-        """Mark this task as completed. If frequency is 'daily' or 'weekly', should return a new Task with task_date advanced accordingly (implemented in Phase 4). Returns None for 'once' tasks."""
-        pass
+        """Mark this task as completed."""
+        self.completed = True
+        # TODO (Phase 4): if frequency is 'daily' or 'weekly', build and
+        # return a new Task with task_date advanced via timedelta (+1 or +7
+        # days). Returns None for 'once' tasks.
+        return None
 
 
 @dataclass
