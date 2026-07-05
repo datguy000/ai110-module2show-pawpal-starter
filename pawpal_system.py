@@ -68,6 +68,15 @@ class Owner:
         """Return (pet, task) pairs for every task across all pets."""
         return [(pet, task) for pet in self.pets for task in pet.get_tasks()]
 
+    def get_or_create_pet(self, name: str, species: str) -> Pet:
+        """Return the existing pet matching name and species, or create and add a new one."""
+        for pet in self.pets:
+            if pet.name == name and pet.species == species:
+                return pet
+        pet = Pet(name=name, species=species)
+        self.add_pet(pet)
+        return pet
+
 
 class Scheduler:
     def __init__(self, owner: Owner):

@@ -1,4 +1,7 @@
 import streamlit as st
+from datetime import date, datetime, timedelta
+
+from pawpal_system import Owner, Task, Scheduler
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -43,46 +46,93 @@ owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
 
+if "owner" not in st.session_state:
+    st.session_state.owner = Owner(owner_name)
+
+owner = st.session_state.owner
+
 st.markdown("### Tasks")
-st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
+st.caption("Add a few tasks. These feed into your scheduler.")
 
-if "tasks" not in st.session_state:
-    st.session_state.tasks = []
-
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 with col1:
     task_title = st.text_input("Task title", value="Morning walk")
+    category = st.selectbox("Category", ["feeding", "walk", "meds", "grooming", "general"], index=4)
+    if "task_time" not in st.session_state:
+        st.session_state.task_time = datetime.now().time()
+    task_time = st.time_input("Time", key="task_time")
 with col2:
     duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
-with col3:
-    priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
+    priority = st.selectbox("Priority", ["low", "medium", "high"], index=1)
+    frequency = st.selectbox("Frequency", ["once", "daily", "weekly"], index=0)
 
 if st.button("Add task"):
-    st.session_state.tasks.append(
-        {"title": task_title, "duration_minutes": int(duration), "priority": priority}
+    pet = owner.get_or_create_pet(pet_name, species)
+    task = Task(
+        title=task_title,
+        category=category,
+        time=task_time.strftime("%H:%M"),
+        duration_minutes=int(duration),
+        priority=priority,
+        frequency=frequency,
+        task_date=date.today(),
     )
+    pet.add_task(task)
 
-if st.session_state.tasks:
+all_tasks = owner.get_all_tasks()
+if all_tasks:
     st.write("Current tasks:")
-    st.table(st.session_state.tasks)
+    st.table(
+        [
+            {
+                "pet": f"{pet.name} ({pet.species})",
+                "title": task.title,
+                "category": task.category,
+                "time": task.time,
+                "duration_minutes": task.duration_minutes,
+                "priority": task.priority,
+                "frequency": task.frequency,
+            }
+            for pet, task in all_tasks
+        ]
+    )
 else:
     st.info("No tasks yet. Add one above.")
 
 st.divider()
 
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+st.caption("This calls the Scheduler to build today's schedule.")
 
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    scheduler = Scheduler(owner)
+    schedule, conflicts = scheduler.generate_daily_schedule()
+
+    if schedule:
+        st.write("Today's schedule:")
+
+        def _end_time(task):
+            start = datetime.strptime(task.time, "%H:%M")
+            end = start + timedelta(minutes=task.duration_minutes)
+            return end.strftime("%H:%M")
+
+        st.table(
+            [
+                {
+                    "pet": f"{pet.name} ({pet.species})",
+                    "start": task.time,
+                    "end": _end_time(task),
+                    "title": task.title,
+                    "category": task.category,
+                    "priority": task.priority,
+                }
+                for pet, task in schedule
+            ]
+        )
+    else:
+        st.info("No tasks to schedule yet.")
+
+    if conflicts:
+        st.warning(f"{len(conflicts)} conflict(s) detected.")
+    else:
+        st.success("No conflicts detected.")
