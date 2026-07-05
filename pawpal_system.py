@@ -26,6 +26,10 @@ class Task:
         # days). Returns None for 'once' tasks.
         return None
 
+    def __str__(self) -> str:
+        """Return a readable one-line summary of this task."""
+        return f"{self.time} — {self.title} ({self.category}, {self.priority})"
+
 
 @dataclass
 class Pet:
@@ -71,16 +75,31 @@ class Scheduler:
 
     def sort_by_time(self, tasks: list[tuple[Pet, Task]]) -> list[tuple[Pet, Task]]:
         """Sort (pet, task) pairs by task_date, then by time."""
-        pass
+        # TODO (Phase 4): sort tasks by task_date, then by time.
+        return tasks
 
-    def filter_tasks(self, pet_name: str | None = None, completed: bool | None = None) -> list[tuple[Pet, Task]]:
+    def filter_tasks(
+        self,
+        tasks: list[tuple[Pet, Task]],
+        pet_name: str | None = None,
+        completed: bool | None = None,
+    ) -> list[tuple[Pet, Task]]:
         """Filter (pet, task) pairs by pet name and/or completion status."""
-        pass
+        # TODO (Phase 4): filter tasks by pet_name and/or completed when given.
+        return tasks
 
-    def detect_conflicts(self, tasks: list[tuple[Pet, Task]]) -> list:
-        """Detect overlapping time windows across all pets' tasks."""
-        pass
+    def detect_conflicts(self, tasks: list[tuple[Pet, Task]]) -> list[tuple[tuple[Pet, Task], tuple[Pet, Task]]]:
+        """Detect overlapping time windows across all pets' tasks; returns pairs of conflicting (Pet, Task) entries."""
+        # TODO (Phase 4): compare each task's [time, time + duration_minutes)
+        # window against every other task's window (across all pets combined)
+        # and collect each overlapping pair as a tuple of two (Pet, Task)
+        # entries. An empty list means no conflicts were found.
+        return []
 
-    def generate_daily_schedule(self) -> list[tuple[Pet, Task]]:
+    def generate_daily_schedule(self) -> tuple[list[tuple[Pet, Task]], list]:
         """Build the day's schedule by combining sorting, filtering, and conflict checks."""
-        pass
+        all_tasks = self.owner.get_all_tasks()
+        sorted_tasks = self.sort_by_time(all_tasks)
+        schedule = self.filter_tasks(sorted_tasks)
+        conflicts = self.detect_conflicts(schedule)
+        return schedule, conflicts
