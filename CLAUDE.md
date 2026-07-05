@@ -76,7 +76,7 @@ current phase's checkpoint is confirmed complete by the human.
 
 - [x] Phase 1, Step 1: Identify 3 core user actions (done in reflection.md)
 - [x] Phase 1, Step 3: UML draft (diagrams/uml_draft.mmd — done)
-- [ ] Phase 1, Step 4: Generate class skeletons (names/attributes/method
+- [x] Phase 1, Step 4: Generate class skeletons (names/attributes/method
       stubs only, no logic) in pawpal_system.py, using dataclasses for
       Task and Pet. Commit as its own step.
 - [ ] Phase 1, Step 5: Review skeleton against UML for gaps; report findings
