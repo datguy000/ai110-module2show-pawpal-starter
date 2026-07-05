@@ -11,15 +11,15 @@ from datetime import date
 class Task:
     title: str
     category: str
-    date: date
     time: str
     duration_minutes: int
     priority: str
     frequency: str
+    task_date: date = field(default_factory=date.today)
     completed: bool = False
 
     def mark_complete(self) -> None:
-        """Mark this task as completed."""
+        """Mark this task as completed. If frequency is 'daily' or 'weekly', should return a new Task with task_date advanced accordingly (implemented in Phase 4). Returns None for 'once' tasks."""
         pass
 
 
@@ -36,6 +36,10 @@ class Pet:
 
     def get_tasks(self) -> list[Task]:
         """Return this pet's list of tasks."""
+        pass
+
+    def complete_task(self, task: Task) -> None:
+        """Complete a task and add any resulting recurring follow-up task to this pet's list (implemented in Phase 4)."""
         pass
 
 
@@ -57,18 +61,18 @@ class Scheduler:
     def __init__(self, owner: Owner):
         self.owner: Owner = owner
 
-    def sort_by_time(self, tasks: list[Task]) -> list[Task]:
-        """Sort tasks by date, then by time."""
+    def sort_by_time(self, tasks: list[tuple[Pet, Task]]) -> list[tuple[Pet, Task]]:
+        """Sort (pet, task) pairs by task_date, then by time."""
         pass
 
-    def filter_tasks(self, pet_name: str = None, completed: bool = None) -> list[Task]:
-        """Filter tasks by pet name and/or completion status."""
+    def filter_tasks(self, pet_name: str | None = None, completed: bool | None = None) -> list[tuple[Pet, Task]]:
+        """Filter (pet, task) pairs by pet name and/or completion status."""
         pass
 
-    def detect_conflicts(self, tasks: list[Task]) -> list:
+    def detect_conflicts(self, tasks: list[tuple[Pet, Task]]) -> list:
         """Detect overlapping time windows across all pets' tasks."""
         pass
 
-    def generate_daily_schedule(self) -> list[Task]:
+    def generate_daily_schedule(self) -> list[tuple[Pet, Task]]:
         """Build the day's schedule by combining sorting, filtering, and conflict checks."""
         pass

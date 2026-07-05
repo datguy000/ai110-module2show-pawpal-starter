@@ -79,7 +79,7 @@ current phase's checkpoint is confirmed complete by the human.
 - [x] Phase 1, Step 4: Generate class skeletons (names/attributes/method
       stubs only, no logic) in pawpal_system.py, using dataclasses for
       Task and Pet. Commit as its own step.
-- [ ] Phase 1, Step 5: Review skeleton against UML for gaps; report findings
+- [x] Phase 1, Step 5: Review skeleton against UML for gaps; report findings
       to human before making changes.
 - [ ] Phase 2: Full implementation of all 4 classes' logic. Then main.py
       demo script (1 Owner, 2+ Pets, 3+ Tasks, printed "Today's Schedule").
