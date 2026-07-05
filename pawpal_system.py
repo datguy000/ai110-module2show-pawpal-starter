@@ -36,15 +36,19 @@ class Pet:
 
     def add_task(self, task: Task) -> None:
         """Add a task to this pet's task list."""
-        pass
+        self.tasks.append(task)
 
     def get_tasks(self) -> list[Task]:
         """Return this pet's list of tasks."""
-        pass
+        return self.tasks
 
     def complete_task(self, task: Task) -> None:
-        """Complete a task and add any resulting recurring follow-up task to this pet's list (implemented in Phase 4)."""
-        pass
+        """Complete a task and add any resulting recurring follow-up task to this pet's list."""
+        follow_up = task.mark_complete()
+        # TODO (Phase 4): once Task.mark_complete() returns a follow-up Task
+        # for 'daily'/'weekly' frequencies, this will add it automatically.
+        if follow_up is not None:
+            self.add_task(follow_up)
 
 
 class Owner:
