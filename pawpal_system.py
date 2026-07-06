@@ -4,7 +4,7 @@ Skeleton only (Phase 1, Step 4) — attributes and method stubs, no logic.
 """
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 
 
 @dataclass
@@ -18,13 +18,25 @@ class Task:
     task_date: date = field(default_factory=date.today)
     completed: bool = False
 
-    def mark_complete(self) -> None:
-        """Mark this task as completed."""
+    def mark_complete(self) -> "Task | None":
+        """Mark this task as completed and return a follow-up task if it recurs."""
         self.completed = True
-        # TODO (Phase 4): if frequency is 'daily' or 'weekly', build and
-        # return a new Task with task_date advanced via timedelta (+1 or +7
-        # days). Returns None for 'once' tasks.
-        return None
+        if self.frequency == "daily":
+            delta = timedelta(days=1)
+        elif self.frequency == "weekly":
+            delta = timedelta(days=7)
+        else:
+            return None
+        return Task(
+            title=self.title,
+            category=self.category,
+            time=self.time,
+            duration_minutes=self.duration_minutes,
+            priority=self.priority,
+            frequency=self.frequency,
+            task_date=self.task_date + delta,
+            completed=False,
+        )
 
     def __str__(self) -> str:
         """Return a readable one-line summary of this task."""
@@ -49,8 +61,6 @@ class Pet:
     def complete_task(self, task: Task) -> None:
         """Complete a task and add any resulting recurring follow-up task to this pet's list."""
         follow_up = task.mark_complete()
-        # TODO (Phase 4): once Task.mark_complete() returns a follow-up Task
-        # for 'daily'/'weekly' frequencies, this will add it automatically.
         if follow_up is not None:
             self.add_task(follow_up)
 
@@ -78,32 +88,53 @@ class Owner:
         return pet
 
 
+def _time_to_minutes(time_str: str) -> int:
+    """Convert an 'HH:MM' string to minutes since midnight."""
+    hours, minutes = time_str.split(":")
+    return int(hours) * 60 + int(minutes)
+
+
 class Scheduler:
     def __init__(self, owner: Owner):
         self.owner: Owner = owner
 
     def sort_by_time(self, tasks: list[tuple[Pet, Task]]) -> list[tuple[Pet, Task]]:
         """Sort (pet, task) pairs by task_date, then by time."""
-        # TODO (Phase 4): sort tasks by task_date, then by time.
-        return tasks
+        return sorted(tasks, key=lambda pair: (pair[1].task_date, pair[1].time))
 
     def filter_tasks(
         self,
         tasks: list[tuple[Pet, Task]],
         pet_name: str | None = None,
+        species: str | None = None,
         completed: bool | None = None,
     ) -> list[tuple[Pet, Task]]:
-        """Filter (pet, task) pairs by pet name and/or completion status."""
-        # TODO (Phase 4): filter tasks by pet_name and/or completed when given.
-        return tasks
+        """Filter (pet, task) pairs by pet name, species, and/or completion status."""
+        result = tasks
+        if pet_name is not None:
+            result = [pair for pair in result if pair[0].name == pet_name]
+        if species is not None:
+            result = [pair for pair in result if pair[0].species == species]
+        if completed is not None:
+            result = [pair for pair in result if pair[1].completed == completed]
+        return result
 
     def detect_conflicts(self, tasks: list[tuple[Pet, Task]]) -> list[tuple[tuple[Pet, Task], tuple[Pet, Task]]]:
         """Detect overlapping time windows across all pets' tasks; returns pairs of conflicting (Pet, Task) entries."""
-        # TODO (Phase 4): compare each task's [time, time + duration_minutes)
-        # window against every other task's window (across all pets combined)
-        # and collect each overlapping pair as a tuple of two (Pet, Task)
-        # entries. An empty list means no conflicts were found.
-        return []
+        conflicts = []
+        for i in range(len(tasks)):
+            for j in range(i + 1, len(tasks)):
+                task_a = tasks[i][1]
+                task_b = tasks[j][1]
+                if task_a.task_date != task_b.task_date:
+                    continue
+                start_a = _time_to_minutes(task_a.time)
+                end_a = start_a + task_a.duration_minutes
+                start_b = _time_to_minutes(task_b.time)
+                end_b = start_b + task_b.duration_minutes
+                if start_a < end_b and start_b < end_a:
+                    conflicts.append((tasks[i], tasks[j]))
+        return conflicts
 
     def generate_daily_schedule(self) -> tuple[list[tuple[Pet, Task]], list]:
         """Build the day's schedule by combining sorting, filtering, and conflict checks."""
