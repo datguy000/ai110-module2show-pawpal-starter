@@ -50,13 +50,19 @@ These weren't design changes so much as technical corrections, but addressing th
 
 **a. Constraints and priorities**
 
-- What constraints does your scheduler consider (for example: time, priority, preferences)?
-- How did you decide which constraints mattered most?
+My Scheduler considers two constraints directly: time (via task_date and time, used for both chronological sorting and conflict-window detection) and, indirectly, duration (duration_minutes, which combines with time to define each task's actual occupied window for conflict checking). priority exists as a field on every Task, but no algorithm currently uses it — sorting is purely time-based, and filtering only supports narrowing by pet name, species, and completion status, not priority.
+
+I decided time was the constraint that mattered most because it's the one that produces objectively correct answers: two tasks scheduled at overlapping times are a real, unambiguous conflict regardless of anyone's opinion, and "what comes first" has one correct chronological answer. Priority, by contrast, is more of an ordering preference than a hard constraint — a "high priority" task doesn't need to happen at a different time than a "low priority" one, it just might deserve visual emphasis or tie-breaking logic if two tasks are otherwise equal. 
+
+I deliberately left owner-level constraints, like available time windows or personal preferences (e.g., "I like walking, so walks should rank higher"), out of scope entirely. They were discussed early in planning but would require the Owner class to hold data it doesn't currently have and would meaningfully expand what "a conflict" or "a priority" even means — more complexity than this project's scenario needs to demonstrate the core scheduling behaviors.
 
 **b. Tradeoffs**
 
-- Describe one tradeoff your scheduler makes.
-- Why is that tradeoff reasonable for this scenario?
+One tradeoff my Scheduler makes is using a straightforward nested-loop comparison in detect_conflicts() rather than a more optimized approach. I asked my AI coding assistant to suggest simplifications, and it offered two: grouping tasks by date before comparing (reducing unnecessary comparisons across different days) and a sweep-line-style early-exit optimization. 
+
+I decided against both. The date-grouping optimization would add real complexity (an extra dictionary, more code paths) for a performance gain that doesn't matter at this app's realistic scale — a single owner typically manages a handful of tasks per day, not hundreds. The sweep-line approach falls squarely into the "custom scheduling optimizer" territory I deliberately scoped out of this project from the start. 
+
+I kept the simple O(n²) nested loop because it's honest and easy to explain line-by-line, which matters more for a learning project than theoretical efficiency I'll never actually need.
 
 ---
 

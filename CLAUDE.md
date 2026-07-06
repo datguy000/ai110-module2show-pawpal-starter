@@ -85,11 +85,11 @@ current phase's checkpoint is confirmed complete by the human.
       demo script (1 Owner, 2+ Pets, 3+ Tasks, printed "Today's Schedule").
       Then tests/test_pawpal.py with 2 basic tests (mark_complete, add_task
       increases count). Add 1-line docstrings to all methods.
-- [ ] Phase 3: Wire app.py to real Owner/Pet/Task objects via
+- [x] Phase 3: Wire app.py to real Owner/Pet/Task objects via
       st.session_state (app.py already has a placeholder session_state
       pattern for a plain dict-based task list — replace it with real
       objects, don't rebuild the UI from scratch).
-- [ ] Phase 4: Algorithmic layer — sort_by_time, filter_tasks, recurrence,
+- [x] Phase 4: Algorithmic layer — sort_by_time, filter_tasks, recurrence,
       detect_conflicts. Update main.py to demonstrate each. Update README's
       "Smarter Scheduling" table.
 - [ ] Phase 5: Testing pass — add sorting correctness, recurrence, and

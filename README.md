@@ -47,10 +47,14 @@ pip install -r requirements.txt
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
 ```
-Today's Schedule                                                     
+Today's Schedule                                                            
 Rex: 08:00 - Morning Walk (walk, high)
-Rex: 18:00 - Dinner (feeding, medium)
+Milo: 08:15 - Nail Trim (grooming, low)
 Milo: 12:30 - Vet Checkup (meds, high)
+Rex: 18:00 - Dinner (feeding, medium)
+
+Conflicts
+Rex: 08:00-08:30 Morning Walk  <->  Milo: 08:15-08:35 Nail Trim
 ```
 
 ## 🧪 Testing PawPal+
@@ -71,14 +75,12 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
-
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | `Scheduler.sort_by_time` | Sorts (pet, task) pairs by `task_date`, then by `time` |
+| Filtering | `Scheduler.filter_tasks` | Narrows (pet, task) pairs by `pet_name`, `species`, and/or `completed`, AND-combined |
+| Conflict handling | `Scheduler.detect_conflicts` | Flags any two tasks (across all pets) whose `[time, time + duration_minutes)` windows overlap on the same date |
+| Recurring tasks | `Task.mark_complete` | Completing a `"daily"`/`"weekly"` task returns a new follow-up Task dated +1/+7 days; `"once"` tasks return `None` |
 
 ## 📸 Demo Walkthrough
 
