@@ -92,7 +92,7 @@ current phase's checkpoint is confirmed complete by the human.
 - [x] Phase 4: Algorithmic layer — sort_by_time, filter_tasks, recurrence,
       detect_conflicts. Update main.py to demonstrate each. Update README's
       "Smarter Scheduling" table.
-- [ ] Phase 5: Testing pass — add sorting correctness, recurrence, and
+- [x] Phase 5: Testing pass — add sorting correctness, recurrence, and
       conflict detection tests. Get full pytest suite green.
 - [ ] Phase 6: UI polish (surface sort/filter/conflict results with
       st.success/st.warning/st.table), diagrams/uml_final.mmd, README

@@ -67,11 +67,25 @@ pytest
 pytest --cov
 ```
 
+This suite includes 27 tests covering core object behavior (task creation, completion, adding tasks/pets), all four algorithmic features (sorting by time, filtering by pet/species/completion status, conflict detection, and recurring task generation), and edge cases including empty schedules, boundary-exact conflicts (identical time/duration, back-to-back tasks that touch but don't overlap), multi-way overlapping conflicts, and idempotent pet lookup via `get_or_create_pet`.
+
 Sample test output:
 
 ```
-# Paste your pytest output here
+============================================================ test session starts =============================================================
+platform win32 -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\costa\CodePath\Summer 2026\AI110\Week4 Project\ai110-module2show-pawpal-starter
+plugins: anyio-4.14.1
+collected 27 items                                                                                                                            
+
+tests\test_pawpal.py ...........................                                                                                        [100%]
+
+============================================================= 27 passed in 0.05s =============================================================
 ```
+
+**Confidence Level: ⭐⭐⭐⭐☆ (4/5)**
+
+The core logic — sorting, filtering, conflict detection, and recurrence — is thoroughly tested, including boundary cases that are easy to get subtly wrong. I'm slightly short of 5 stars because a few interaction scenarios remain untested for time reasons (e.g., a newly-generated recurring task flowing correctly into a subsequent schedule generation), and the Streamlit UI layer itself isn't covered by automated tests, only manual verification.
 
 ## 📐 Smarter Scheduling
 
