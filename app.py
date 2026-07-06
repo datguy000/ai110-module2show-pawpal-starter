@@ -104,35 +104,58 @@ st.divider()
 st.subheader("Build Schedule")
 st.caption("This calls the Scheduler to build today's schedule.")
 
+
+def _format_range(task):
+    """Return the task's time window as 'HH:MM-HH:MM' for display."""
+    start = datetime.strptime(task.time, "%H:%M")
+    end = start + timedelta(minutes=task.duration_minutes)
+    return task.time, end.strftime("%H:%M")
+
+
+filter_col1, filter_col2 = st.columns(2)
+with filter_col1:
+    species_options = ["all"] + sorted({pet.species for pet in owner.pets})
+    species_filter = st.selectbox("Filter by species", species_options)
+with filter_col2:
+    show_completed = st.checkbox("Show completed tasks", value=True)
+
 if st.button("Generate schedule"):
     scheduler = Scheduler(owner)
     schedule, conflicts = scheduler.generate_daily_schedule()
 
+    schedule = scheduler.filter_tasks(
+        schedule,
+        species=None if species_filter == "all" else species_filter,
+        completed=None if show_completed else False,
+    )
+
     if schedule:
         st.write("Today's schedule:")
-
-        def _end_time(task):
-            start = datetime.strptime(task.time, "%H:%M")
-            end = start + timedelta(minutes=task.duration_minutes)
-            return end.strftime("%H:%M")
 
         st.table(
             [
                 {
                     "pet": f"{pet.name} ({pet.species})",
-                    "start": task.time,
-                    "end": _end_time(task),
+                    "start": _format_range(task)[0],
+                    "end": _format_range(task)[1],
                     "title": task.title,
                     "category": task.category,
                     "priority": task.priority,
+                    "completed": task.completed,
                 }
                 for pet, task in schedule
             ]
         )
     else:
-        st.info("No tasks to schedule yet.")
+        st.info("No tasks match the current filters.")
 
     if conflicts:
-        st.warning(f"{len(conflicts)} conflict(s) detected.")
+        for (pet_a, task_a), (pet_b, task_b) in conflicts:
+            start_a, end_a = _format_range(task_a)
+            start_b, end_b = _format_range(task_b)
+            st.warning(
+                f"Conflict: {pet_a.name} ({pet_a.species})'s \"{task_a.title}\" ({start_a}-{end_a}) overlaps "
+                f"{pet_b.name} ({pet_b.species})'s \"{task_b.title}\" ({start_b}-{end_b})"
+            )
     else:
         st.success("No conflicts detected.")
