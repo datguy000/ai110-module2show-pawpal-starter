@@ -221,3 +221,142 @@ def test_filter_tasks_by_pet_name_and_species_combination():
     result = scheduler.filter_tasks(owner.get_all_tasks(), pet_name="Rex", species="cat")
 
     assert [task.title for _, task in result] == ["Groom"]
+
+
+def test_generate_daily_schedule_with_no_pets_returns_empty_schedule_and_conflicts():
+    owner = Owner(name="Andre")
+    scheduler = Scheduler(owner)
+
+    schedule, conflicts = scheduler.generate_daily_schedule()
+
+    assert schedule == []
+    assert conflicts == []
+
+
+def test_detect_conflicts_flags_identical_time_and_duration_tasks():
+    owner = Owner(name="Andre")
+    dog = Pet(name="Rex", species="dog")
+    cat = Pet(name="Milo", species="cat")
+    dog_task = make_task(title="Walk", time="08:00", duration_minutes=30)
+    cat_task = make_task(title="Groom", time="08:00", duration_minutes=30)
+    dog.add_task(dog_task)
+    cat.add_task(cat_task)
+    owner.add_pet(dog)
+    owner.add_pet(cat)
+    scheduler = Scheduler(owner)
+
+    conflicts = scheduler.detect_conflicts(owner.get_all_tasks())
+
+    assert len(conflicts) == 1
+    conflicting_titles = {conflicts[0][0][1].title, conflicts[0][1][1].title}
+    assert conflicting_titles == {"Walk", "Groom"}
+
+
+def test_detect_conflicts_reports_all_pairs_among_three_mutually_overlapping_tasks():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    task_a = make_task(title="A", time="08:00", duration_minutes=60)
+    task_b = make_task(title="B", time="08:15", duration_minutes=60)
+    task_c = make_task(title="C", time="08:30", duration_minutes=60)
+    pet.add_task(task_a)
+    pet.add_task(task_b)
+    pet.add_task(task_c)
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    conflicts = scheduler.detect_conflicts(owner.get_all_tasks())
+
+    conflicting_pairs = {
+        frozenset({pair[0][1].title, pair[1][1].title}) for pair in conflicts
+    }
+    assert conflicting_pairs == {
+        frozenset({"A", "B"}),
+        frozenset({"A", "C"}),
+        frozenset({"B", "C"}),
+    }
+
+
+def test_schedule_with_all_tasks_completed():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    task_a = make_task(title="Walk", time="08:00")
+    task_b = make_task(title="Feed", time="09:00")
+    task_a.mark_complete()
+    task_b.mark_complete()
+    pet.add_task(task_a)
+    pet.add_task(task_b)
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    schedule, conflicts = scheduler.generate_daily_schedule()
+    completed_only = scheduler.filter_tasks(owner.get_all_tasks(), completed=True)
+
+    assert [task.title for _, task in schedule] == ["Walk", "Feed"]
+    assert conflicts == []
+    assert [task.title for _, task in completed_only] == ["Walk", "Feed"]
+
+
+def test_detect_conflicts_ignores_back_to_back_tasks():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    task_a = make_task(title="Walk", time="08:00", duration_minutes=30)
+    task_b = make_task(title="Feed", time="08:30", duration_minutes=15)
+    pet.add_task(task_a)
+    pet.add_task(task_b)
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    conflicts = scheduler.detect_conflicts(owner.get_all_tasks())
+
+    assert conflicts == []
+
+
+def test_detect_conflicts_ignores_identical_time_on_different_dates():
+    owner = Owner(name="Andre")
+    dog = Pet(name="Rex", species="dog")
+    cat = Pet(name="Milo", species="cat")
+    dog_task = make_task(title="Walk", time="08:00", duration_minutes=30, task_date=date(2026, 7, 5))
+    cat_task = make_task(title="Groom", time="08:00", duration_minutes=30, task_date=date(2026, 7, 6))
+    dog.add_task(dog_task)
+    cat.add_task(cat_task)
+    owner.add_pet(dog)
+    owner.add_pet(cat)
+    scheduler = Scheduler(owner)
+
+    conflicts = scheduler.detect_conflicts(owner.get_all_tasks())
+
+    assert conflicts == []
+
+
+def test_filter_tasks_by_nonexistent_pet_name_returns_empty():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    pet.add_task(make_task(title="Walk"))
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    result = scheduler.filter_tasks(owner.get_all_tasks(), pet_name="Ghost")
+
+    assert result == []
+
+
+def test_filter_tasks_by_nonexistent_species_returns_empty():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    pet.add_task(make_task(title="Walk"))
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    result = scheduler.filter_tasks(owner.get_all_tasks(), species="bird")
+
+    assert result == []
+
+
+def test_get_or_create_pet_returns_same_pet_and_does_not_duplicate():
+    owner = Owner(name="Andre")
+
+    first = owner.get_or_create_pet("Rex", "dog")
+    second = owner.get_or_create_pet("Rex", "dog")
+
+    assert first is second
+    assert len(owner.pets) == 1
