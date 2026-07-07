@@ -136,6 +136,14 @@ class Scheduler:
                     conflicts.append((tasks[i], tasks[j]))
         return conflicts
 
+    def sort_by_priority_then_time(self, tasks: list[tuple[Pet, Task]]) -> list[tuple[Pet, Task]]:
+        """Sort (pet, task) pairs by priority (high, medium, low), then by time within each tier."""
+        priority_weight = {"high": 0, "medium": 1, "low": 2}
+        return sorted(
+            tasks,
+            key=lambda pair: (priority_weight[pair[1].priority], pair[1].task_date, pair[1].time),
+        )
+
     def generate_daily_schedule(self) -> tuple[list[tuple[Pet, Task]], list]:
         """Build the day's schedule by combining sorting, filtering, and conflict checks."""
         all_tasks = self.owner.get_all_tasks()

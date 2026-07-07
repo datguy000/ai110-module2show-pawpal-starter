@@ -352,6 +352,38 @@ def test_filter_tasks_by_nonexistent_species_returns_empty():
     assert result == []
 
 
+def test_sort_by_priority_then_time_orders_by_priority_first():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    high = make_task(title="Vet", time="20:00", priority="high")
+    medium = make_task(title="Feed", time="12:00", priority="medium")
+    low = make_task(title="Groom", time="08:00", priority="low")
+    pet.add_task(low)
+    pet.add_task(medium)
+    pet.add_task(high)
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    sorted_pairs = scheduler.sort_by_priority_then_time(owner.get_all_tasks())
+
+    assert [task.title for _, task in sorted_pairs] == ["Vet", "Feed", "Groom"]
+
+
+def test_sort_by_priority_then_time_beats_earlier_low_priority_time():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    late_high = make_task(title="Late High", time="20:00", priority="high")
+    early_low = make_task(title="Early Low", time="08:00", priority="low")
+    pet.add_task(early_low)
+    pet.add_task(late_high)
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    sorted_pairs = scheduler.sort_by_priority_then_time(owner.get_all_tasks())
+
+    assert [task.title for _, task in sorted_pairs] == ["Late High", "Early Low"]
+
+
 def test_get_or_create_pet_returns_same_pet_and_does_not_duplicate():
     owner = Owner(name="Andre")
 

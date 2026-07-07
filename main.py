@@ -66,3 +66,9 @@ if conflicts:
             f"{pet_a.name}: {_format_range(task_a)} {task_a.title}  <->  "
             f"{pet_b.name}: {_format_range(task_b)} {task_b.title}"
         )
+
+priority_view = scheduler.sort_by_priority_then_time(owner.get_all_tasks())
+
+print("\nPriority View")
+for pet, task in priority_view:
+    print(f"{pet.name}: {task}")
