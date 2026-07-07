@@ -94,7 +94,7 @@ current phase's checkpoint is confirmed complete by the human.
       "Smarter Scheduling" table.
 - [x] Phase 5: Testing pass — add sorting correctness, recurrence, and
       conflict detection tests. Get full pytest suite green.
-- [ ] Phase 6: UI polish (surface sort/filter/conflict results with
+- [x] Phase 6: UI polish (surface sort/filter/conflict results with
       st.success/st.warning/st.table), diagrams/uml_final.mmd, README
       polish, reflection.md final sections.
 

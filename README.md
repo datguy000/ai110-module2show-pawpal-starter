@@ -96,14 +96,29 @@ The core logic — sorting, filtering, conflict detection, and recurrence — is
 | Conflict handling | `Scheduler.detect_conflicts` | Flags any two tasks (across all pets) whose `[time, time + duration_minutes)` windows overlap on the same date |
 | Recurring tasks | `Task.mark_complete` | Completing a `"daily"`/`"weekly"` task returns a new follow-up Task dated +1/+7 days; `"once"` tasks return `None` |
 
+## ✨ Features
+- **Multi-pet task tracking** — one Owner manages any number of Pets, each with their own task list
+- **Sorting** — `Scheduler.sort_by_time()` orders all tasks chronologically by date, then time
+- **Filtering** — `Scheduler.filter_tasks()` narrows tasks by pet name, species, and/or completion status
+- **Conflict detection** — `Scheduler.detect_conflicts()` flags overlapping task time windows across all pets, with clear same-name/species disambiguation in warnings
+- **Recurring tasks** — completing a daily or weekly task automatically generates the next occurrence via `Task.mark_complete()`
+- **Interactive UI** — Streamlit app for adding pets/tasks and generating a live daily schedule, with species and completion-status filters
+
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+1. Enter an owner name, then a pet's name and species in the "Quick Demo Inputs" section.
+2. Fill out the Add Task form (title, category, duration, priority, time, frequency) and click **Add task**. Repeat for multiple pets by changing the pet name/species fields between additions — each unique name+species pair is tracked as its own pet.
+3. The "Current tasks" table shows every task added so far, with a pet column (name and species) so same-named pets stay distinguishable.
+4. Click **Generate schedule** to run the Scheduler: tasks are sorted chronologically, optionally filtered by species or completion status using the controls above the button, and checked for time conflicts.
+5. If two tasks overlap in time, a warning names both pets, both task titles, and the overlapping time windows. If no conflicts exist, a success message confirms it.
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+Sample CLI output (from running `python main.py`):
+```
+Today's Schedule
+Rex: 08:00 - Morning Walk (walk, high)
+Milo: 08:15 - Nail Trim (grooming, low)
+Milo: 12:30 - Vet Checkup (meds, high)
+Rex: 18:00 - Dinner (feeding, medium)
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+Conflicts
+Rex: 08:00-08:30 Morning Walk  <->  Milo: 08:15-08:35 Nail Trim
