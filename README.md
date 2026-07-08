@@ -144,3 +144,14 @@ Milo: 08:15 - Nail Trim (grooming, low)
 ```
 
 Notice Milo's 08:15 Nail Trim (low priority) drops from second to last in the priority view, despite being early in the day — proving priority genuinely takes precedence over time, not just breaking ties.
+
+### 🌟 Stretch 4: Professional UI Formatting
+The Streamlit UI (`app.py`) uses emoji-based formatting throughout — labels, dropdown options, table columns, and buttons — to make the interface easier to scan at a glance. All formatting is display-only; underlying data (`species`, `category`, `priority` values) stays as plain strings, using lookup dictionaries to map values to their decorated display form only at render time.
+
+| Element | Icon(s) |
+|---|---|
+| Species (table) | Dog 🐕 · Cat 🐱 · Other 🐾❓ |
+| Category | Feeding 🍽️ · Walk 🚶 · Meds 💊 · Grooming ✂️ · General 📋 |
+| Priority | High 🔴 · Medium 🟡 · Low 🟢 |
+| Time / Date | 🕐 / 📅 |
+| Owner | 👤 |
