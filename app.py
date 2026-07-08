@@ -5,6 +5,34 @@ from pawpal_system import Owner, Task, Scheduler
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
+# Display-only emoji lookups. These never touch stored Task/Pet values.
+SPECIES_TABLE_ICONS = {"dog": "🐕", "cat": "🐱", "other": "🐾❓"}
+SPECIES_ICON = "🐾"
+CATEGORY_ICONS = {"feeding": "🍽️", "walk": "🚶", "meds": "💊", "grooming": "✂️", "general": "📋"}
+PRIORITY_ICONS = {"high": "🔴", "medium": "🟡", "low": "🟢"}
+
+
+def _pet_label(pet):
+    """Return a pet's display label prefixed with its species icon."""
+    icon = SPECIES_TABLE_ICONS.get(pet.species, SPECIES_TABLE_ICONS["other"])
+    return f"{icon} {pet.name}"
+
+
+def _category_label(category):
+    """Return a category value prefixed with its icon for display."""
+    return f"{CATEGORY_ICONS.get(category, '📋')} {category}"
+
+
+def _priority_label(priority):
+    """Return a priority value prefixed with its icon for display."""
+    return f"{PRIORITY_ICONS.get(priority, '')} {priority}"
+
+
+def _strip_icon(labeled_value):
+    """Strip a leading emoji+space back off a dropdown label to get the plain value."""
+    return labeled_value.split(" ", 1)[1] if " " in labeled_value else labeled_value
+
+
 st.title("🐾 PawPal+")
 
 st.markdown(
@@ -41,32 +69,46 @@ At minimum, your system should:
 
 st.divider()
 
-st.subheader("Quick Demo Inputs (UI only)")
-owner_name = st.text_input("Owner name", value="Jordan")
-pet_name = st.text_input("Pet name", value="Mochi")
-species = st.selectbox("Species", ["dog", "cat", "other"])
+st.subheader("👤 Quick Demo Inputs (UI only)")
+owner_name = st.text_input("👤 Owner name", value="Jordan")
+pet_name = st.text_input(f"{SPECIES_ICON} Pet name", value="Mochi")
+species_labeled = st.selectbox(
+    f"{SPECIES_ICON} Species",
+    [f"{SPECIES_TABLE_ICONS[s]} {s}" for s in ["dog", "cat", "other"]],
+)
+species = _strip_icon(species_labeled)
 
 if "owner" not in st.session_state:
     st.session_state.owner = Owner(owner_name)
 
 owner = st.session_state.owner
 
-st.markdown("### Tasks")
+st.markdown("### ✅ Tasks")
 st.caption("Add a few tasks. These feed into your scheduler.")
 
 col1, col2 = st.columns(2)
 with col1:
-    task_title = st.text_input("Task title", value="Morning walk")
-    category = st.selectbox("Category", ["feeding", "walk", "meds", "grooming", "general"], index=4)
+    task_title = st.text_input("📋 Task title", value="Morning walk")
+    category_labeled = st.selectbox(
+        "📋 Category",
+        [_category_label(c) for c in ["feeding", "walk", "meds", "grooming", "general"]],
+        index=4,
+    )
+    category = _strip_icon(category_labeled)
     if "task_time" not in st.session_state:
         st.session_state.task_time = datetime.now().time()
-    task_time = st.time_input("Time", key="task_time")
+    task_time = st.time_input("🕐 Time", key="task_time")
 with col2:
-    duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
-    priority = st.selectbox("Priority", ["low", "medium", "high"], index=1)
-    frequency = st.selectbox("Frequency", ["once", "daily", "weekly"], index=0)
+    duration = st.number_input("🕐 Duration (minutes)", min_value=1, max_value=240, value=20)
+    priority_labeled = st.selectbox(
+        "🎯 Priority",
+        [_priority_label(p) for p in ["low", "medium", "high"]],
+        index=1,
+    )
+    priority = _strip_icon(priority_labeled)
+    frequency = st.selectbox("📅 Frequency", ["once", "daily", "weekly"], index=0)
 
-if st.button("Add task"):
+if st.button("➕ Add task"):
     pet = owner.get_or_create_pet(pet_name, species)
     task = Task(
         title=task_title,
@@ -85,12 +127,12 @@ if all_tasks:
     st.table(
         [
             {
-                "pet": f"{pet.name} ({pet.species})",
+                "pet": _pet_label(pet),
                 "title": task.title,
-                "category": task.category,
-                "time": task.time,
+                "category": _category_label(task.category),
+                "time": f"🕐 {task.time}",
                 "duration_minutes": task.duration_minutes,
-                "priority": task.priority,
+                "priority": _priority_label(task.priority),
                 "frequency": task.frequency,
             }
             for pet, task in all_tasks
@@ -101,7 +143,7 @@ else:
 
 st.divider()
 
-st.subheader("Build Schedule")
+st.subheader("📅 Build Schedule")
 st.caption("This calls the Scheduler to build today's schedule.")
 
 
@@ -115,11 +157,18 @@ def _format_range(task):
 filter_col1, filter_col2 = st.columns(2)
 with filter_col1:
     species_options = ["all"] + sorted({pet.species for pet in owner.pets})
-    species_filter = st.selectbox("Filter by species", species_options)
+    species_filter_labeled = st.selectbox(
+        f"{SPECIES_ICON} Filter by species",
+        [
+            f"{SPECIES_TABLE_ICONS.get(s, SPECIES_ICON)} {s}" if s != "all" else "🐾 all"
+            for s in species_options
+        ],
+    )
+    species_filter = _strip_icon(species_filter_labeled)
 with filter_col2:
-    show_completed = st.checkbox("Show completed tasks", value=True)
+    show_completed = st.checkbox("✅ Show completed tasks", value=True)
 
-if st.button("Generate schedule"):
+if st.button("✨ Generate schedule"):
     scheduler = Scheduler(owner)
     schedule, conflicts = scheduler.generate_daily_schedule()
 
@@ -135,12 +184,12 @@ if st.button("Generate schedule"):
         st.table(
             [
                 {
-                    "pet": f"{pet.name} ({pet.species})",
+                    "pet": _pet_label(pet),
                     "start": _format_range(task)[0],
                     "end": _format_range(task)[1],
                     "title": task.title,
-                    "category": task.category,
-                    "priority": task.priority,
+                    "category": _category_label(task.category),
+                    "priority": _priority_label(task.priority),
                     "completed": task.completed,
                 }
                 for pet, task in schedule
@@ -154,8 +203,8 @@ if st.button("Generate schedule"):
             start_a, end_a = _format_range(task_a)
             start_b, end_b = _format_range(task_b)
             st.warning(
-                f"Conflict: {pet_a.name} ({pet_a.species})'s \"{task_a.title}\" ({start_a}-{end_a}) overlaps "
-                f"{pet_b.name} ({pet_b.species})'s \"{task_b.title}\" ({start_b}-{end_b})"
+                f"Conflict: {_pet_label(pet_a)}'s \"{task_a.title}\" ({start_a}-{end_a}) overlaps "
+                f"{_pet_label(pet_b)}'s \"{task_b.title}\" ({start_b}-{end_b})"
             )
     else:
         st.success("No conflicts detected.")
