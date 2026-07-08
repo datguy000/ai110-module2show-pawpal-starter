@@ -94,6 +94,16 @@ def _time_to_minutes(time_str: str) -> int:
     return int(hours) * 60 + int(minutes)
 
 
+def _minutes_to_time(minutes: int) -> str:
+    """Convert minutes since midnight to a zero-padded 'HH:MM' string."""
+    return f"{minutes // 60:02d}:{minutes % 60:02d}"
+
+
+SEARCH_DAY_START = "06:00"
+SEARCH_DAY_END = "22:00"
+SLOT_STEP_MINUTES = 15
+
+
 class Scheduler:
     def __init__(self, owner: Owner):
         self.owner: Owner = owner
@@ -143,6 +153,30 @@ class Scheduler:
             tasks,
             key=lambda pair: (priority_weight[pair[1].priority], pair[1].task_date, pair[1].time),
         )
+
+    def find_next_available_slot(
+        self,
+        tasks: list[tuple[Pet, Task]],
+        duration_minutes: int,
+        after_time: str | None = None,
+    ) -> str | None:
+        """Find the next 'HH:MM' start time (within 06:00-22:00) fitting duration_minutes with no conflicts."""
+        busy_windows = [
+            (_time_to_minutes(task.time), _time_to_minutes(task.time) + task.duration_minutes)
+            for _, task in tasks
+        ]
+        day_start = _time_to_minutes(SEARCH_DAY_START)
+        day_end = _time_to_minutes(SEARCH_DAY_END)
+        earliest = max(day_start, _time_to_minutes(after_time)) if after_time else day_start
+
+        candidate = earliest
+        while candidate + duration_minutes <= day_end:
+            candidate_end = candidate + duration_minutes
+            if not any(candidate < busy_end and busy_start < candidate_end for busy_start, busy_end in busy_windows):
+                return _minutes_to_time(candidate)
+            candidate += SLOT_STEP_MINUTES
+
+        return None
 
     def generate_daily_schedule(self) -> tuple[list[tuple[Pet, Task]], list]:
         """Build the day's schedule by combining sorting, filtering, and conflict checks."""

@@ -384,6 +384,42 @@ def test_sort_by_priority_then_time_beats_earlier_low_priority_time():
     assert [task.title for _, task in sorted_pairs] == ["Late High", "Early Low"]
 
 
+def test_find_next_available_slot_with_no_conflicts_returns_after_time():
+    owner = Owner(name="Andre")
+    scheduler = Scheduler(owner)
+
+    slot = scheduler.find_next_available_slot([], duration_minutes=30, after_time="10:00")
+
+    assert slot == "10:00"
+
+
+def test_find_next_available_slot_skips_past_existing_tasks():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    pet.add_task(make_task(title="Walk", time="08:00", duration_minutes=60))
+    pet.add_task(make_task(title="Feed", time="09:00", duration_minutes=30))
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    slot = scheduler.find_next_available_slot(
+        owner.get_all_tasks(), duration_minutes=30, after_time="08:00"
+    )
+
+    assert slot == "09:30"
+
+
+def test_find_next_available_slot_returns_none_when_day_is_full():
+    owner = Owner(name="Andre")
+    pet = Pet(name="Rex", species="dog")
+    pet.add_task(make_task(title="All Day", time="06:00", duration_minutes=16 * 60))
+    owner.add_pet(pet)
+    scheduler = Scheduler(owner)
+
+    slot = scheduler.find_next_available_slot(owner.get_all_tasks(), duration_minutes=30)
+
+    assert slot is None
+
+
 def test_get_or_create_pet_returns_same_pet_and_does_not_duplicate():
     owner = Owner(name="Andre")
 

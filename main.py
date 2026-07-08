@@ -72,3 +72,8 @@ priority_view = scheduler.sort_by_priority_then_time(owner.get_all_tasks())
 print("\nPriority View")
 for pet, task in priority_view:
     print(f"{pet.name}: {task}")
+
+next_slot = scheduler.find_next_available_slot(
+    owner.get_all_tasks(), duration_minutes=30, after_time="08:00"
+)
+print(f"\nNext available 30-minute slot after 08:00: {next_slot}")
