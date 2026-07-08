@@ -122,3 +122,25 @@ Rex: 18:00 - Dinner (feeding, medium)
 
 Conflicts
 Rex: 08:00-08:30 Morning Walk  <->  Milo: 08:15-08:35 Nail Trim
+```
+
+## 🌟 Stretch Features
+
+### 🌟 Stretch 3: Advanced Priority Scheduling
+Scheduler.sort_by_priority_then_time() provides a triage-style view of the day's tasks — ordered by priority first (High → Medium → Low), with time only breaking ties within each tier. This differs intentionally from the chronological "Today's Schedule" view: a high-priority task later in the day will still outrank a low-priority task earlier in the day.
+
+```
+Today's Schedule (chronological)
+Rex: 08:00 - Morning Walk (walk, high)
+Milo: 08:15 - Nail Trim (grooming, low)
+Milo: 12:30 - Vet Checkup (meds, high)
+Rex: 18:00 - Dinner (feeding, medium)
+
+Priority View (triage)
+Rex: 08:00 - Morning Walk (walk, high)
+Milo: 12:30 - Vet Checkup (meds, high)
+Rex: 18:00 - Dinner (feeding, medium)
+Milo: 08:15 - Nail Trim (grooming, low)
+```
+
+Notice Milo's 08:15 Nail Trim (low priority) drops from second to last in the priority view, despite being early in the day — proving priority genuinely takes precedence over time, not just breaking ties.
