@@ -126,6 +126,12 @@ Rex: 08:00-08:30 Morning Walk  <->  Milo: 08:15-08:35 Nail Trim
 
 ## 🌟 Stretch Features
 
+### 🌟 Stretch 1: Advanced Algorithmic Capability
+Added Scheduler.find_next_available_slot(), which finds the next open time window across all pets' combined schedule, avoiding existing conflicts. See ai_interactions.md for the Agent Workflow documentation.
+
+### 🌟 Stretch 2: Data Persistence
+Skipped. Without update/delete operations on tasks, a saved JSON file would only ever grow, with no way to remove completed or mistaken entries between sessions. Implementing persistence properly would require adding that missing CRUD surface first, which wasn't feasible in the remaining time.
+
 ### 🌟 Stretch 3: Advanced Priority Scheduling
 Scheduler.sort_by_priority_then_time() provides a triage-style view of the day's tasks — ordered by priority first (High → Medium → Low), with time only breaking ties within each tier. This differs intentionally from the chronological "Today's Schedule" view: a high-priority task later in the day will still outrank a low-priority task earlier in the day.
 
@@ -155,3 +161,6 @@ The Streamlit UI (`app.py`) uses emoji-based formatting throughout — labels, d
 | Priority | High 🔴 · Medium 🟡 · Low 🟢 |
 | Time / Date | 🕐 / 📅 |
 | Owner | 👤 |
+
+### 🌟 Stretch 5: Multi-Model Prompt Comparison
+See ai_interactions.md for the full comparison across Claude, ChatGPT, and Perplexity.
